@@ -1,0 +1,6 @@
+name: Datetime Range Bonus
+type: module
+description: Implements some bonus features for the datetime range core field.
+dependencies:
+  - datetime_range
+core: 8.x
