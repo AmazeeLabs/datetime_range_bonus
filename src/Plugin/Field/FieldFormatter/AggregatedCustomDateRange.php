@@ -77,7 +77,7 @@ class AggregatedCustomDateRange extends DateRangeCustomFormatter {
           $tmp_date_format = $this->getSetting('date_format');
           $this->setSetting('date_format', $date_format['start']->getPattern());
           $elements[$delta]['start_date'] = $this->buildDate($start_date);
-          $elements[$delta]['separator'] = ['#plain_text' => ' ' . $separator . ' '];
+          $elements[$delta]['separator'] = ['#plain_text' => $separator];
           $this->setSetting('date_format', $date_format['end']->getPattern());
           $elements[$delta]['end_date'] = $this->buildDate($end_date);
           $this->setSetting('date_format', $tmp_date_format);
