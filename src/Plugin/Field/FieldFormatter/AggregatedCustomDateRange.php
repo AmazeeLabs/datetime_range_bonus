@@ -81,6 +81,11 @@ class AggregatedCustomDateRange extends DateRangeCustomFormatter {
           $this->setSetting('date_format', $date_format['end']->getPattern());
           $elements[$delta]['end_date'] = $this->buildDate($end_date);
           $this->setSetting('date_format', $tmp_date_format);
+          // Check if the final output for the end and start date are the same
+          // and if yes just remove the separator and the end date.
+          if ($elements[$delta]['start_date'] == $elements[$delta]['end_date']) {
+            unset($elements[$delta]['separator'], $elements[$delta]['end_date']);
+          }
         }
         else {
           // The default is just to use the date_format setting directly. But
@@ -113,8 +118,8 @@ class AggregatedCustomDateRange extends DateRangeCustomFormatter {
    */
   public function getCustomFormatForDateRange(DrupalDateTime $start_date, DrupalDateTime $end_date) {
     $format = array();
-    $start_date_parts = explode('.', $start_date->format('Y.n.d.Gi'));
-    $end_date_parts = explode('.', $end_date->format('Y.n.d.Gis'));
+    $start_date_parts = explode('.', $start_date->format('Y.n.d.His'));
+    $end_date_parts = explode('.', $end_date->format('Y.n.d.His'));
     // If the year of the dates is different, we will just use the default
     // formatter setting (the 'date_format' setting).
     if ($start_date_parts[0] != $end_date_parts[0]) {
@@ -134,9 +139,27 @@ class AggregatedCustomDateRange extends DateRangeCustomFormatter {
       $format['end'] = $this->dateFormatStorage->load($different_date_settings['date_format_end']);
     }
     elseif ($start_date_parts[3] != $end_date_parts[3]) {
+      // For this case, we have to check if the start time or the end time were
+      // actually input by the user. For example, if the start time is '000000'
+      // then it is very very likely that this is the default value. The same
+      // for the end date being '235959'. One important thing to remark here:
+      // as mentioned, it is just very very likely, it is not 100% sure, but
+      // in our case it is really very unlikely to have dates with times
+      // starting at 000000 or ending at 235959 sharp.
       $different_time_settings = $this->getSetting('different_time');
-      $format['start'] = $this->dateFormatStorage->load($different_time_settings['date_format_start']);
-      $format['end'] = $this->dateFormatStorage->load($different_time_settings['date_format_end']);
+      if ($start_date_parts[3] !== '000000') {
+        $format['start'] = $this->dateFormatStorage->load($different_time_settings['date_format_start']);
+      }
+      else {
+        $format['start'] = $this->dateFormatStorage->load($this->getSetting('date_format'));
+      }
+
+      if ($end_date_parts[3] !== '235959') {
+        $format['end'] = $this->dateFormatStorage->load($different_time_settings['date_format_end']);
+      }
+      else {
+        $format['end'] = $this->dateFormatStorage->load($this->getSetting('date_format'));
+      }
     }
     else {
       // The default is to use the 'date_format' setting.
