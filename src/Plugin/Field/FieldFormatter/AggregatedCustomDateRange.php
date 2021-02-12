@@ -178,7 +178,7 @@ class AggregatedCustomDateRange extends DateRangeCustomFormatter {
     $date_formats = $this->dateFormatStorage->loadMultiple();
     $formatter_options = array();
     foreach ($date_formats as $date_format) {
-      $formatter_options[$date_format->id()] = $date_format->label() . '(' .$this->dateFormatter->format(REQUEST_TIME, $date_format->id()) . ')';
+      $formatter_options[$date_format->id()] = $date_format->label() . '(' . $this->dateFormatter->format(\Drupal::time()->getRequestTime(), $date_format->id()) . ')';
     }
 
     $different_time_settings = $this->getSetting('different_time');
